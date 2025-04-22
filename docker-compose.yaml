@@ -1,0 +1,40 @@
+version: '3.8'
+services:
+  logserver:
+    build: ./logserver
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./logserver:/app
+
+  erp-system:
+    build: ./erp-system,
+    volumes:
+      - ./erp-system:/app
+    environment:
+      - LOGSERVER_URL=http://logserver:5000/log
+    depends_on:
+      - logserver
+
+  e-commerce-system:
+    build: ./e-commerce-system
+    environment:
+      - LOGSERVER_URL=http://logserver:5000/log
+    depends_on:
+      - logserver
+
+  crm-system:
+    build: ./crm-system
+    environment:
+      - LOGSERVER_URL=http://logserver:5000/log
+    depends_on:
+      - logserver
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"   
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
