@@ -7,7 +7,7 @@
 
         <!-- HTTP Appender mit nur JsonLayout -->
         <Http name="HttpAppender" url="http://localhost:3000/log">
-            <JsonLayout compact="true" eventEol="true"/>
+            <JsonLayout compact="true" eventEol="true" />
         </Http>
     </Appenders>
 
