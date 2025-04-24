@@ -1,21 +1,30 @@
-import amqp from 'amqplib';
+import express from 'express';
+import bodyParser from 'body-parser';
 
-async function startLogger() {
-  const conn = await amqp.connect('amqp://rabbitmq');
-  const channel = await conn.createChannel();
-  const queue = 'log_queue';
+// Initialisiere den Express-Server
+const app = express();
+const port = 3000; // Du kannst den Port nach Bedarf ändern
 
-  await channel.assertQueue(queue, { durable: false });
+// Body-Parser Middleware für JSON-Daten
+app.use(bodyParser.json());
 
-  console.log('[Logserver] Warte auf Logs...');
+// Endpoint zum Empfangen der Logs
+app.post('/log', (req, res) => {
+  const log = req.body;
 
-  channel.consume(queue, (msg) => {
-    if (msg) {
-      const log = JSON.parse(msg.content.toString());
-      console.log(`[${log.timestamp}] [${log.service}] ${log.level}: ${log.message}`);
-      channel.ack(msg);
-    }
-  });
-}
+  // Überprüfe, ob die notwendigen Felder vorhanden sind
+  if (!log.timestamp || !log.level || !log.service || !log.message) {
+    return res.status(400).json({ error: 'Invalid log format' });
+  }
 
-startLogger();
+  // Log-Nachricht ausgeben (du kannst dies auch in eine Datei oder eine Datenbank speichern)
+  console.log(`[${log.timestamp}] [${log.service}] ${log.level}: ${log.message}`);
+
+  // Antwort senden
+  res.status(200).json({ message: 'Log received' });
+});
+
+// Starte den Server
+app.listen(port, () => {
+  console.log(`Log server running on http://localhost:${port}`);
+});
