@@ -1,0 +1,11 @@
+<configuration>
+
+    <appender name="HTTP" class="com.example.ecommercesystem.HttpLogbackAppender">
+        <endpointUrl>http://localhost:3000/log</endpointUrl>
+    </appender>
+
+    <root level="INFO">
+        <appender-ref ref="HTTP" />
+    </root>
+
+</configuration>
