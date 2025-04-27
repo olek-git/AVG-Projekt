@@ -7,6 +7,9 @@ import lombok.AllArgsConstructor;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 
+/**
+ * Repräsentiert ein Produkt im E-Commerce-System.
+ */
 @Entity
 @Data
 @NoArgsConstructor

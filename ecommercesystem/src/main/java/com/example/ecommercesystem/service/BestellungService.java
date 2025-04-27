@@ -1,10 +1,12 @@
 package com.example.ecommercesystem.service;
 
-import com.example.ecommercesystem.controller.BestellungRequest;
-import com.example.ecommercesystem.controller.BestellungResponse;
+import com.example.ecommercesystem.dto.BestellungRequest;
+import com.example.ecommercesystem.dto.BestellungResponse;
 import com.example.ecommercesystem.entity.Bestellung;
 import com.example.ecommercesystem.entity.Deliverystatus;
 import com.example.ecommercesystem.repository.BestellungRepository;
+
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,6 +17,13 @@ import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Service für die Verwaltung von Bestellungen.
+ * 
+ * Diese Klasse enthält die Geschäftslogik für das Erstellen und Aktualisieren
+ * von Bestellungen
+ * im E-Commerce-System.
+ */
 @Service
 public class BestellungService {
 
@@ -22,6 +31,15 @@ public class BestellungService {
     private BestellungRepository repository;
     private static final Logger logger = LoggerFactory.getLogger(BestellungService.class);
 
+    /**
+     * Startet den Bestellprozess für einen Kunden und erstellt eine neue
+     * Bestellung.
+     * 
+     * @param request Die Anfrage des Kunden, die alle Informationen zur Bestellung
+     *                enthält
+     * @return Eine {@link BestellungResponse} mit Lieferdatum und Status der
+     *         Bestellung
+     */
     public BestellungResponse bestellungAufgeben(BestellungRequest request) {
         logger.info("Starte Bestellungsprozess für Kunde mit ID: {}", request.getCustomerid());
 
@@ -43,5 +61,31 @@ public class BestellungService {
         logger.info("Bestellung erfolgreich erstellt: {}", bestellung.getOrderid());
 
         return new BestellungResponse(lieferdatum, Deliverystatus.PENDING);
+    }
+
+    /**
+     * Aktualisiert den Status einer bestehenden Bestellung.
+     * 
+     * Diese Methode sucht eine Bestellung anhand der Bestell-ID und aktualisiert
+     * den Lieferstatus sowie das Lieferdatum der Bestellung.
+     * 
+     * @param bestellungId Die ID der Bestellung, deren Status aktualisiert werden
+     *                     soll
+     * @param neuerStatus  Der neue Lieferstatus der Bestellung
+     * @param lieferdatum  Das neue Lieferdatum der Bestellung
+     */
+    public void updateBestellungStatus(String bestellungId, Deliverystatus neuerStatus, LocalDate lieferdatum) {
+        Optional<Bestellung> optionalBestellung = repository.findById(bestellungId);
+        if (optionalBestellung.isPresent()) {
+            Bestellung bestellung = optionalBestellung.get();
+            bestellung.setDeliverystatus(neuerStatus);
+            bestellung.setDeliverydate(lieferdatum);
+            repository.save(bestellung);
+
+            logger.info("Bestellung mit ID {} erfolgreich aktualisiert: neuer Status = {}, neues Lieferdatum = {}",
+                    bestellungId, neuerStatus, lieferdatum);
+        } else {
+            logger.warn("Keine Bestellung gefunden für ID: {}", bestellungId);
+        }
     }
 }

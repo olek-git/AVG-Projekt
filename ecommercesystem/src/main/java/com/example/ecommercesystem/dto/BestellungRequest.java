@@ -1,9 +1,16 @@
-package com.example.ecommercesystem.controller;
+package com.example.ecommercesystem.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import jakarta.validation.constraints.*;
 
+/**
+ * Datenübertragungsobjekt für eingehende Bestellungsanfragen.
+ */
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class BestellungRequest {
 
     @NotBlank

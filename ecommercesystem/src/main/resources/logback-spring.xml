@@ -1,6 +1,6 @@
 <configuration>
 
-    <appender name="HTTP" class="com.example.ecommercesystem.HttpLogbackAppender">
+    <appender name="HTTP" class="com.example.ecommercesystem.config.HttpLogbackAppender">
         <endpointUrl>http://localhost:3000/log</endpointUrl>
     </appender>
 

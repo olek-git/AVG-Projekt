@@ -11,6 +11,10 @@ import lombok.AllArgsConstructor;
 
 import java.time.LocalDate;
 
+/**
+ * Repräsentiert eine Bestellung im E-Commerce-System.
+ * 
+ */
 @Entity
 @Data
 @AllArgsConstructor

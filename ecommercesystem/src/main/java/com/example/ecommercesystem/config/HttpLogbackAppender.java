@@ -1,4 +1,4 @@
-package com.example.ecommercesystem;
+package com.example.ecommercesystem.config;
 
 import ch.qos.logback.core.AppenderBase;
 import ch.qos.logback.classic.spi.ILoggingEvent;
@@ -7,14 +7,34 @@ import org.springframework.web.client.RestTemplate;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Custom Logback Appender zum Senden von Logdaten an einen HTTP-Endpunkt.
+ * 
+ * Dieser Appender erfasst Logdaten und sendet sie in Form einer
+ * HTTP-POST-Anfrage an einen konfigurierten
+ * Endpunkt. Dies ermöglicht das zentrale Sammeln von Logdaten über HTTP,
+ * beispielsweise in einem
+ * Monitoring- oder Logging-System.
+ */
 public class HttpLogbackAppender extends AppenderBase<ILoggingEvent> {
 
     private String endpointUrl;
 
+    /**
+     * Setzt die URL des Endpunkts, an den die Logdaten gesendet werden.
+     * 
+     * @param endpointUrl Die URL des Ziel-Endpunkts
+     */
     public void setEndpointUrl(String endpointUrl) {
         this.endpointUrl = endpointUrl;
     }
 
+    /**
+     * Verarbeitet das Logging-Ereignis und sendet die Logdaten an den
+     * konfigurierten HTTP-Endpunkt.
+     * 
+     * @param eventObject Das Log-Ereignis, das verarbeitet wird
+     */
     @Override
     protected void append(ILoggingEvent eventObject) {
         try {
