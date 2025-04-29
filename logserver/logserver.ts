@@ -1,21 +1,17 @@
-import amqp from 'amqplib';
+import express from 'express';
 
-async function startLogger() {
-  const conn = await amqp.connect('amqp://rabbitmq');
-  const channel = await conn.createChannel();
-  const queue = 'log_queue';
+const app = express();
+const port = 3000;
 
-  await channel.assertQueue(queue, { durable: false });
+// Jetzt JSON akzeptieren
+app.use(express.json());
 
-  console.log('[Logserver] Warte auf Logs...');
+app.post('/log', (req, res) => {
+  const log = req.body;
+  console.log(`[${new Date(log.timestamp).toLocaleString()}] ${log.level} - ${log.logger}: ${log.message}`);
+  res.sendStatus(200);
+});
 
-  channel.consume(queue, (msg) => {
-    if (msg) {
-      const log = JSON.parse(msg.content.toString());
-      console.log(`[${log.timestamp}] [${log.service}] ${log.level}: ${log.message}`);
-      channel.ack(msg);
-    }
-  });
-}
-
-startLogger();
+app.listen(port, () => {
+  console.log(`🚀 Logserver läuft auf http://localhost:${port}`);
+});
