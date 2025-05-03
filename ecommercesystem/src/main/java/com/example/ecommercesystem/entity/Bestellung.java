@@ -33,7 +33,7 @@ public class Bestellung {
 
     private int quantity;
 
-    private LocalDate orderdate;
+    private LocalDate orderdate; // Local Date weil besser als java.util.Date
 
     @Enumerated(EnumType.STRING)
     private Deliverystatus deliverystatus;

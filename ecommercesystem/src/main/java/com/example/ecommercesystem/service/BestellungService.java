@@ -1,13 +1,16 @@
 package com.example.ecommercesystem.service;
 
+import com.example.ecommercesystem.dto.BestellMessage;
 import com.example.ecommercesystem.dto.BestellungRequest;
 import com.example.ecommercesystem.dto.BestellungResponse;
 import com.example.ecommercesystem.entity.Bestellung;
 import com.example.ecommercesystem.entity.Deliverystatus;
+import com.example.ecommercesystem.rabbitmq.RabbitConfig;
 import com.example.ecommercesystem.repository.BestellungRepository;
 
 import java.util.Optional;
 
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -29,6 +32,8 @@ public class BestellungService {
 
     @Autowired
     private BestellungRepository repository;
+    @Autowired
+    private RabbitTemplate rabbitTemplate;
     private static final Logger logger = LoggerFactory.getLogger(BestellungService.class);
 
     /**
@@ -40,7 +45,7 @@ public class BestellungService {
      * @return Eine {@link BestellungResponse} mit Lieferdatum und Status der
      *         Bestellung
      */
-    public BestellungResponse bestellungAufgeben(BestellungRequest request) {
+    public Bestellung bestellungAufgeben(BestellungRequest request) {
         logger.info("Starte Bestellungsprozess für Kunde mit ID: {}", request.getCustomerid());
 
         Bestellung bestellung = new Bestellung();
@@ -57,10 +62,9 @@ public class BestellungService {
         LocalDate lieferdatum = LocalDate.now().plusDays(3);
         bestellung.setDeliverydate(lieferdatum);
 
-        repository.save(bestellung);
         logger.info("Bestellung erfolgreich erstellt: {}", bestellung.getOrderid());
 
-        return new BestellungResponse(lieferdatum, Deliverystatus.PENDING);
+        return repository.save(bestellung);
     }
 
     /**
@@ -87,5 +91,20 @@ public class BestellungService {
         } else {
             logger.warn("Keine Bestellung gefunden für ID: {}", bestellungId);
         }
+    }
+
+    /**
+     * Schickt bei Aktualisierung einer Bestellung oder neuanlegen eine Nachricht
+     * über RabbitMQ
+     * an das CRM-System
+     * 
+     * @param bestellMessage
+     */
+    public void sendOrderToCrm(BestellMessage bestellMessage) {
+        rabbitTemplate.convertAndSend(
+                RabbitConfig.EXCHANGE_NAME,
+                RabbitConfig.ROUTING_KEY,
+                bestellMessage);
+        logger.info("Nachricht an CRM-System gesendet: {}", bestellMessage.getOrderid());
     }
 }

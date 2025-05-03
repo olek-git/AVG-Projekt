@@ -7,8 +7,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.ecommercesystem.dto.BestellMessage;
 import com.example.ecommercesystem.dto.BestellungRequest;
 import com.example.ecommercesystem.dto.BestellungResponse;
+import com.example.ecommercesystem.entity.Bestellung;
 import com.example.ecommercesystem.service.*;
 
 import org.slf4j.Logger;
@@ -36,7 +38,22 @@ public class BestellungWriteController {
         logger.info("Bestellungsanfrage erhalten von Kunde mit ID: {}", request.getCustomerid());
         logger.debug("Bestellungsanfrage Details: {}", request);
 
-        BestellungResponse response = service.bestellungAufgeben(request);
+        Bestellung bestellung = service.bestellungAufgeben(request);
+
+        // Nachricht an das CRM-System senden sobald Bestellung (Kauf) eingeht
+        BestellMessage message = new BestellMessage(
+                bestellung.getOrderid(),
+                bestellung.getOrderdate(),
+                bestellung.getQuantity(),
+                bestellung.getDeliverystatus());
+        service.sendOrderToCrm(message);
+
+        // Bestellung in Response umwandeln
+        BestellungResponse response = new BestellungResponse(
+                bestellung.getDeliverydate(),
+                bestellung.getDeliverystatus());
+
+        // Nur das Response-DTO zurückgeben
         return ResponseEntity.ok(response);
     }
 }
