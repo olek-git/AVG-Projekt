@@ -1,5 +1,6 @@
 package com.acme.crmsystem.rabbitmq;
 
+import org.springframework.amqp.rabbit.annotation.Queue;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -11,7 +12,7 @@ public class BestellHistorieListener {
     @Autowired
     private BestellHistorieService bestellHistorieService;
 
-    @RabbitListener(queues = "orderQueue")
+    @RabbitListener(queuesToDeclare = @Queue("order.updates"))
     public void receiveOrderMessage(BestellHistorie bestellHistorie) {
 
         bestellHistorieService.updateBestellHistorie(bestellHistorie);

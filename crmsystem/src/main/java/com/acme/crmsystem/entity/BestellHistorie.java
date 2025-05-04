@@ -24,5 +24,5 @@ public class BestellHistorie {
 
     private double totalamount;
 
-    private Deliverystatus status;
+    private int status;
 }

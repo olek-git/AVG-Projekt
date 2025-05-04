@@ -6,6 +6,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
+import org.springframework.context.annotation.Bean;
+
 @SpringBootApplication
 @EnableRabbit
 public class EcommercesystemApplication {
@@ -15,5 +18,10 @@ public class EcommercesystemApplication {
     public static void main(String[] args) {
         logger.info("Server wurde erfolgreich gestartet.");
         SpringApplication.run(EcommercesystemApplication.class, args);
+    }
+
+    @Bean
+    public Jackson2JsonMessageConverter messageConverter() {
+        return new Jackson2JsonMessageConverter();
     }
 }

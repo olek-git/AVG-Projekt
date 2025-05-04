@@ -17,7 +17,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class BestellungStatusUpdateMessage {
-    private String productid;
+    private String orderid;
     private Deliverystatus deliverystatus;
     private LocalDate deliverydate;
 }

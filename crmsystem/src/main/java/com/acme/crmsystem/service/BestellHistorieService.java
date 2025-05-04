@@ -13,7 +13,7 @@ public class BestellHistorieService {
 
     public void updateBestellHistorie(BestellHistorie bestellHistorie) {
         // Überprüfe, ob eine Bestellung mit der gegebenen OrderID bereits existiert
-        BestellHistorie existingOrder = bestellHistorieRepository.findByOrderId(bestellHistorie.getOrderid());
+        BestellHistorie existingOrder = bestellHistorieRepository.findByOrderid(bestellHistorie.getOrderid());
 
         if (existingOrder != null) {
             // Bestellung existiert bereits, also aktualisiere sie

@@ -5,18 +5,13 @@ import com.example.ecommercesystem.dto.BestellungRequest;
 import com.example.ecommercesystem.dto.BestellungResponse;
 import com.example.ecommercesystem.entity.Bestellung;
 import com.example.ecommercesystem.entity.Deliverystatus;
-import com.example.ecommercesystem.rabbitmq.RabbitConfig;
 import com.example.ecommercesystem.repository.BestellungRepository;
-
 import java.util.Optional;
-
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import java.time.LocalDate;
 import java.util.UUID;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -102,8 +97,8 @@ public class BestellungService {
      */
     public void sendOrderToCrm(BestellMessage bestellMessage) {
         rabbitTemplate.convertAndSend(
-                RabbitConfig.EXCHANGE_NAME,
-                RabbitConfig.ROUTING_KEY,
+                "",
+                "order.updates",
                 bestellMessage);
         logger.info("Nachricht an CRM-System gesendet: {}", bestellMessage.getOrderid());
     }

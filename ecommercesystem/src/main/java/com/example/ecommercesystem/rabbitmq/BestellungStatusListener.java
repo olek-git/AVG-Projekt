@@ -3,6 +3,7 @@ package com.example.ecommercesystem.rabbitmq;
 import com.example.ecommercesystem.service.BestellungService;
 import com.example.ecommercesystem.dto.*;
 
+import org.springframework.amqp.rabbit.annotation.Queue;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Service;
 
@@ -37,12 +38,12 @@ public class BestellungStatusListener {
      * 
      * @param nachricht Die empfangene Nachricht mit dem Bestellstatus-Update
      */
-    @RabbitListener(queues = RabbitConfig.BESTELLUNG_STATUS_QUEUE)
+    @RabbitListener(queuesToDeclare = @Queue("order_updates"))
     public void empfangeStatusUpdate(BestellungStatusUpdateMessage nachricht) {
-        logger.info("Empfange Status-Update für Produkt-ID: {}", nachricht.getProductid());
+        logger.info("Empfange Status-Update für Produkt-ID: {}", nachricht.getOrderid());
         logger.debug("Empfangene Nachricht: {}", nachricht);
 
-        bestellungService.updateBestellungStatus(nachricht.getProductid(), nachricht.getDeliverystatus(),
+        bestellungService.updateBestellungStatus(nachricht.getOrderid(), nachricht.getDeliverystatus(),
                 nachricht.getDeliverydate());
     }
 }
