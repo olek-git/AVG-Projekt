@@ -1,5 +1,9 @@
 package org.example.rabbitmq;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
@@ -20,7 +24,15 @@ public class RabbitPublisher {
                         "{\"orderID\":\"%s\", \"deliveryStatus\":\"%s\"}",
                         orderID, deliveryStatus);
 
-                channel.basicPublish("", QUEUE_NAME, null, message.getBytes());
+                Map<String, Object> headers = new HashMap<>();
+                headers.put("__TypeId__", "com.example.ecommercesystem.dto.StatusUpdateMessage");
+
+                AMQP.BasicProperties props = new AMQP.BasicProperties.Builder()
+                    .contentType("application/json")
+                    .headers(headers)
+                    .build();
+
+                channel.basicPublish("", QUEUE_NAME, props, message.getBytes());
                 System.out.println(" [x] Sent '" + message + "'");
             }
         } catch (Exception e) {

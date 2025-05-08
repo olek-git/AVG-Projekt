@@ -1,5 +1,8 @@
 package org.example.grpc;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+
 import org.example.rabbitmq.RabbitPublisher;
 
 import com.google.protobuf.Empty;
@@ -19,16 +22,14 @@ public class ErpServiceImpl extends ErpServiceGrpc.ErpServiceImplBase {
 
         // TODO: Bestand aktualisieren mit getQuantity()
 
-        // TODO: Hier die Logik für Lieferdatum und -status implementieren, die direkt
-        // synchron ans ERP-System gesendet werden.
-        // Beispielwerte für Lieferdatum und -status
-        String deliveryDate = "2025-05-05";
-        String orderStatus = "Processed";
+        // synchron ans E-Commerce-System zurücksenden
+        String deliveryDate = LocalDate.now().plusDays(7).format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        String deliveryStatus = "Pending";
 
         // gRPC-Antwort zurückgeben
         OrderAck ack = OrderAck.newBuilder()
                 .setDeliveryDate(deliveryDate)
-                .setOrderStatus(orderStatus)
+                .setDeliveryStatus(deliveryStatus)
                 .build();
 
         responseObserver.onNext(ack);

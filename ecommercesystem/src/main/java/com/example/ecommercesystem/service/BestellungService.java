@@ -5,13 +5,15 @@ import com.example.ecommercesystem.dto.BestellungRequest;
 import com.example.ecommercesystem.dto.BestellungResponse;
 import com.example.ecommercesystem.entity.Bestellung;
 import com.example.ecommercesystem.entity.Deliverystatus;
+import com.example.ecommercesystem.grpc.ErpClient;
 import com.example.ecommercesystem.repository.BestellungRepository;
-import java.util.Optional;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.UUID;
+
+import org.example.grpc.OrderAck;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,6 +33,9 @@ public class BestellungService {
     private RabbitTemplate rabbitTemplate;
     private static final Logger logger = LoggerFactory.getLogger(BestellungService.class);
 
+    @Autowired
+    private ErpClient erpClient;
+
     /**
      * Startet den Bestellprozess für einen Kunden und erstellt eine neue
      * Bestellung.
@@ -44,7 +49,10 @@ public class BestellungService {
         logger.info("Starte Bestellungsprozess für Kunde mit ID: {}", request.getCustomerid());
 
         Bestellung bestellung = new Bestellung();
-        bestellung.setOrderid(UUID.randomUUID().toString());
+        String orderId = UUID.randomUUID().toString();
+        
+        //Speichern der Bestellung
+        bestellung.setOrderid(orderId);
         bestellung.setCustomerid(request.getCustomerid());
         bestellung.setEmail(request.getEmail());
         bestellung.setAddress(request.getAddress());
@@ -59,33 +67,35 @@ public class BestellungService {
 
         logger.info("Bestellung erfolgreich erstellt: {}", bestellung.getOrderid());
 
+        try {
+        OrderAck ack = erpClient.sendOrder(orderId, request.getProductid(), request.getQuantity());
+
+        bestellung.setDeliverystatus(Deliverystatus.valueOf(ack.getDeliveryStatus().toUpperCase()));
+        bestellung.setDeliverydate(LocalDate.parse(ack.getDeliveryDate()));
+
+        logger.info("Bestelluebersicht: Lieferdatum = {}, Status = {} ", ack.getDeliveryDate(), ack.getDeliveryStatus());
+
+        } catch (Exception e) {
+            logger.error("Fehler beim gRPC-Aufruf an ERP: {}", e.getMessage());
+
+            // Fallback-Werte
+            bestellung.setDeliverystatus(Deliverystatus.PENDING);
+            bestellung.setDeliverydate(LocalDate.now().plusDays(3));
+        }
+
         return repository.save(bestellung);
     }
 
     /**
-     * Aktualisiert den Status einer bestehenden Bestellung.
+     * Aktualisiert den Lieferstatus einer Bestellung.
      * 
-     * Diese Methode sucht eine Bestellung anhand der Bestell-ID und aktualisiert
-     * den Lieferstatus sowie das Lieferdatum der Bestellung.
-     * 
-     * @param bestellungId Die ID der Bestellung, deren Status aktualisiert werden
-     *                     soll
-     * @param neuerStatus  Der neue Lieferstatus der Bestellung
-     * @param lieferdatum  Das neue Lieferdatum der Bestellung
+     * @param orderID        Die ID der Bestellung, deren Status aktualisiert werden
+     *                       soll
+     * @param deliveryStatus Der neue Lieferstatus der Bestellung
      */
-    public void updateBestellungStatus(String bestellungId, Deliverystatus neuerStatus, LocalDate lieferdatum) {
-        Optional<Bestellung> optionalBestellung = repository.findById(bestellungId);
-        if (optionalBestellung.isPresent()) {
-            Bestellung bestellung = optionalBestellung.get();
-            bestellung.setDeliverystatus(neuerStatus);
-            bestellung.setDeliverydate(lieferdatum);
-            repository.save(bestellung);
-
-            logger.info("Bestellung mit ID {} erfolgreich aktualisiert: neuer Status = {}, neues Lieferdatum = {}",
-                    bestellungId, neuerStatus, lieferdatum);
-        } else {
-            logger.warn("Keine Bestellung gefunden für ID: {}", bestellungId);
-        }
+    public void updateBestellungStatus(String orderID, String deliveryStatus) {
+        //TODO: Bestellung aktualisieren und in der Datenbank speichern
+        logger.info("Empfangene Statusänderung:\n- Bestell-ID: {}\n- Neuer Lieferstatus: {}", orderID, deliveryStatus);
     }
 
     /**
