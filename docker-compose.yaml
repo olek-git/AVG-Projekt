@@ -1,33 +1,14 @@
 services:
-  logserver:
-    build: ./logserver
-    ports:
-      - "5000:5000"
-    volumes:
-      - ./logserver:/app
-
   erp-system:
     build: ./erp-system,
     volumes:
       - ./erp-system:/app
-    environment:
-      - LOGSERVER_URL=http://logserver:5000/log
-    depends_on:
-      - logserver
 
-  e-commerce-system:
-    build: ./e-commerce-system
-    environment:
-      - LOGSERVER_URL=http://logserver:5000/log
-    depends_on:
-      - logserver
+  ecommercesystem:
+    build: ./ecommercesystem
 
   crm-system:
     build: ./crm-system
-    environment:
-      - LOGSERVER_URL=http://logserver:5000/log
-    depends_on:
-      - logserver
 
   rabbitmq:
     image: rabbitmq:3-management
@@ -37,3 +18,16 @@ services:
     environment:
       RABBITMQ_DEFAULT_USER: guest
       RABBITMQ_DEFAULT_PASS: guest
+
+  logservice:
+    build: ./logservice
+    environment:
+      - SPRING_RABBITMQ_HOST=rabbitmq
+    depends_on:
+      - rabbitmq
+    networks:
+      - logging_network
+
+networks:
+  logging_network:
+    driver: bridge

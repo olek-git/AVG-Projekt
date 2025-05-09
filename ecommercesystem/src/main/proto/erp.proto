@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "org.example.grpc";
+option java_outer_classname = "ErpProto";
+
+import "google/protobuf/empty.proto";
+
+service ErpService {
+  rpc ProcessOrder (OrderRequest) returns (OrderAck);
+  rpc UpdateOrderStatus (UpdateStatusRequest) returns (google.protobuf.Empty);
+}
+
+message OrderRequest {
+  string orderID = 1;
+  string productID = 2;
+  int32 quantity = 3;
+}
+
+message OrderAck {
+  string deliveryDate = 1; // z. B. "2024-05-04T12:00:00"
+  string deliveryStatus = 2; // "processed"
+}
+
+message UpdateStatusRequest{
+  string orderId = 1;
+  string newStatus = 2;
+}
