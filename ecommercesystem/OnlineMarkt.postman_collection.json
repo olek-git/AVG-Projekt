@@ -1,0 +1,39 @@
+{
+	"info": {
+		"_postman_id": "002f4272-2d5c-45fe-aedb-5688edeb2ec3",
+		"name": "OnlineMarkt",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "38774994"
+	},
+	"item": [
+		{
+			"name": "BestellungAufgeben",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"customerid\": \"12345\",\r\n  \"email\": \"kunde@example.com\",\r\n  \"address\": \"Musterstraße 12, 12345 Stadt\",\r\n  \"productid\": \"prod-001\",\r\n  \"quantity\": 2,\r\n  \"paymentmethod\": \"KREDITKARTE\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/bestellungen",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"bestellungen"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
